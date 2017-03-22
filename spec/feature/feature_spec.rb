@@ -2,8 +2,8 @@ describe "User Stories" do
 
 let(:oyster_card) { OysterCard.new }
 let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
-let(:london_bridge) {double:station}
-let(:bermondsey) {double:station}
+let(:london_bridge) { Station.new("London Bridge", 2)}
+let(:bermondsey) { Station.new("Bermondsey", 2) }
 # In order to use public transport
 # As a customer
 # I want money on my card
@@ -48,11 +48,11 @@ let(:bermondsey) {double:station}
 
   it 'so the user can pass the barriers, they need to be able to touch in and out' do
     oyster_card.top_up(10)
-    expect(oyster_card).not_to be_in_journey
+    expect(oyster_card.trip).not_to be_in_journey
     oyster_card.touch_in(london_bridge)
-    expect(oyster_card).to be_in_journey
+    expect(oyster_card.trip).to be_in_journey
     oyster_card.touch_out(bermondsey)
-    expect(oyster_card).not_to be_in_journey
+    expect(oyster_card.trip).not_to be_in_journey
   end
 
   #In order to pay for my journey
@@ -80,7 +80,7 @@ let(:bermondsey) {double:station}
   it 'will record the station where the user touches in' do
     oyster_card.top_up(10)
     oyster_card.touch_in(london_bridge)
-    expect(oyster_card.entry_station).to eq london_bridge
+    expect(oyster_card.trip.start).to eq london_bridge
   end
 
   #   In order to know where I have been
@@ -91,7 +91,7 @@ let(:bermondsey) {double:station}
     oyster_card.top_up(10)
     oyster_card.touch_in(london_bridge)
     oyster_card.touch_out(bermondsey)
-    expect(oyster_card.journey_history).to include ({london_bridge => bermondsey})
+    expect(oyster_card.trip.journey_history).to include ({london_bridge => bermondsey})
   end
 end
   # In order to know how far I have travelled

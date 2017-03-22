@@ -1,15 +1,22 @@
+
+
+require './lib/journey.rb'
+require './lib/station.rb'
+
 class OysterCard
 
   MAXIMUM_BALANCE = 90
   MINIMUM_BALANCE = 1
 
 
-attr_reader :balance, :entry_station, :journey_history
+
+attr_reader :balance, :entry_station, :journey_history, :trip
 
   def initialize
     @balance = 0
-    @entry_station = nil
+    # @entry_station = nil
     @journey_history = []
+    @trip = Journey.new
   end
 
   def top_up(amount_of_money)
@@ -18,22 +25,27 @@ attr_reader :balance, :entry_station, :journey_history
   end
 
 
-  def in_journey?
-    !!entry_station
-  end
+  # def in_journey?
+  #   !!entry_station
+  # end
 
   def touch_in(station)
-    fail "Cannot touch in: already in journey" if in_journey?
+    fail "Cannot touch in: already in journey" if trip.in_journey?
     fail "Cannot touch in: insufficient funds. Please top up" if balance_insufficient?
-    self.entry_station = station
+    trip.add_start(station)
   end
 
   def touch_out(station)
-    fail "Cannot touch out: not in journey" if !in_journey?
+    fail "Cannot touch out: not in journey" if !trip.in_journey?
     deduct(MINIMUM_BALANCE)
-    journey_history.push({entry_station => station})
-    self.entry_station = nil
+    trip.add_finish(station)
+    trip.store_history
+    trip.end_journey
   end
+
+
+  # journey_history.push(trip)
+
 
   private
 
@@ -41,7 +53,7 @@ attr_reader :balance, :entry_station, :journey_history
     self.balance -= amount_of_money
   end
 
-  attr_writer :balance, :entry_station
+  attr_writer :balance, :entry_station, :trip
 
   def balance_exceeded?(amount_of_money)
     (balance + amount_of_money) > MAXIMUM_BALANCE

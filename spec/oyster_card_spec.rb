@@ -33,21 +33,7 @@ end
     end
   end
 
-  describe "#in_journey?" do
-
-    it 'returns false if card is not in journey' do
-      expect(oyster_card).not_to be_in_journey
-    end
-
-  end
-
   describe "#touch_in" do
-
-    it 'should return in_journey? as true after oyster has called touch_in' do
-      oyster_card.top_up(10)
-      oyster_card.touch_in(london_bridge)
-      expect(oyster_card).to be_in_journey
-    end
 
     it "raise exception when trying to touch_in twice" do
       oyster_card.top_up(10)
@@ -62,7 +48,7 @@ end
     it 'will record the station where the user touches in' do
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
-      expect(oyster_card.entry_station).to eq london_bridge
+      expect(oyster_card.trip.start).to eq london_bridge
     end
   end
 
@@ -72,7 +58,7 @@ end
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
       oyster_card.touch_out(bermondsey)
-      expect(oyster_card).not_to be_in_journey
+      expect(oyster_card.trip).not_to be_in_journey
     end
 
     it "rasie exception when user tries to touch out without touching in" do
@@ -88,7 +74,7 @@ end
     it 'checks that entry_station is set to nil after touching out' do
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
-      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.entry_station}.to nil
+      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.trip.start}.to nil
     end
   end
 
@@ -97,7 +83,7 @@ end
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
       oyster_card.touch_out(bermondsey)
-      expect(oyster_card.journey_history).to include ({london_bridge => bermondsey})
+      expect(oyster_card.trip.journey_history).to include ({london_bridge => bermondsey})
     end
 
 
