@@ -68,14 +68,19 @@ describe OysterCard do
   describe "#touch_in" do
 
     it 'should return in_journey? as true after oyster has called touch_in' do
+      oyster_card.top_up(10)
       oyster_card.touch_in
       expect(oyster_card).to be_in_journey
     end
 
     it "raise exception when trying to touch_in twice" do
+      oyster_card.top_up(10)
       oyster_card.touch_in
       expect { oyster_card.touch_in }.to raise_error("Cannot touch in: already in journey")
+    end
 
+    it "prevents the user from travelling with insufficient funds prevent from touching in unless they have a minimum balance of £1" do
+      expect{oyster_card.touch_in}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
     end
 
   end
@@ -83,6 +88,7 @@ describe OysterCard do
   describe "#touch_out" do
 
     it 'should return in_journey as false after oyster on a journey calls touch_out' do
+      oyster_card.top_up(10)
       oyster_card.touch_in
       oyster_card.touch_out
       expect(oyster_card).not_to be_in_journey

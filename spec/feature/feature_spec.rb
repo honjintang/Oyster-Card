@@ -43,10 +43,19 @@ let(:oyster_card) { OysterCard.new }
   # I need to touch in and out.
 
   it 'so the user can pass the barriers, they need to be able to touch in and out' do
+    oyster_card.top_up(5)
     expect(oyster_card).not_to be_in_journey
     oyster_card.touch_in
     expect(oyster_card).to be_in_journey
     oyster_card.touch_out
     expect(oyster_card).not_to be_in_journey
+  end
+
+  #In order to pay for my journey
+  # As a customer
+  # I need to have the minimum amount (£1) for a single journey.
+
+  it "to prevent the user from travelling with insufficient funds prevent from touching in unless they have a minimum balance of £1" do
+    expect{oyster_card.touch_in}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
   end
 end
