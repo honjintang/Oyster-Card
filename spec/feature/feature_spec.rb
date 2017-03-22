@@ -94,3 +94,6 @@ let(:bermondsey) {double:station}
     expect(oyster_card.journey_history).to include ({london_bridge => bermondsey})
   end
 end
+  # In order to know how far I have travelled
+  # As a customer
+  # I want to know what zone a station is in
