@@ -2,6 +2,7 @@ describe "User Stories" do
 
 let(:oyster_card) { OysterCard.new }
 let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
+let(:london_bridge) {double:station}
 # In order to use public transport
 # As a customer
 # I want money on my card
@@ -34,9 +35,9 @@ let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
 
   it "so user can spend money, allow transactions to occur until there is £0 card balance" do
       oyster_card.top_up(1)
-      oyster_card.touch_in
+      oyster_card.touch_in(london_bridge)
       oyster_card.touch_out
-      expect { oyster_card.touch_in }.to raise_error("Cannot touch in: insufficient funds. Please top up")
+      expect { oyster_card.touch_in(london_bridge) }.to raise_error("Cannot touch in: insufficient funds. Please top up")
 
   end
 
@@ -47,7 +48,7 @@ let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
   it 'so the user can pass the barriers, they need to be able to touch in and out' do
     oyster_card.top_up(10)
     expect(oyster_card).not_to be_in_journey
-    oyster_card.touch_in
+    oyster_card.touch_in(london_bridge)
     expect(oyster_card).to be_in_journey
     oyster_card.touch_out
     expect(oyster_card).not_to be_in_journey
@@ -58,7 +59,7 @@ let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
   # I need to have the minimum amount (£1) for a single journey.
 
   it "to prevent the user from travelling with insufficient funds prevent from touching in unless they have a minimum balance of £1" do
-    expect{oyster_card.touch_in}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
+    expect{oyster_card.touch_in(london_bridge)}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
   end
 
   #   In order to pay for my journey
@@ -67,8 +68,18 @@ let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
 
   it 'deduct minimum fare from balance when touching out.' do
     oyster_card.top_up(10)
-    oyster_card.touch_in
+    oyster_card.touch_in(london_bridge)
     expect {oyster_card.touch_out}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
   end
 
+  #In order to pay for my journey
+  # As a customer
+  # I need to know where I've travelled from
+
+  it 'will record the station where the user touches in' do
+    oyster_card.top_up(10)
+    oyster_card.touch_in(london_bridge)
+    expect(oyster_card.entry_station).to eq london_bridge
+
+  end
 end

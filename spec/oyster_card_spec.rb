@@ -2,6 +2,7 @@ require 'oyster_card'
 
 describe OysterCard do
   subject(:oyster_card) {described_class.new}
+  let(:london_bridge) {double:station}
 
   describe '#balance' do
   it 'responds to balance enquiry' do
@@ -11,8 +12,7 @@ describe OysterCard do
   it "new instance has zero balance by default" do
     expect(oyster_card.balance).to eq(0)
   end
-
-    end
+end
 
   describe '#top_up' do
 
@@ -44,27 +44,32 @@ describe OysterCard do
 
     it 'should return in_journey? as true after oyster has called touch_in' do
       oyster_card.top_up(10)
-      oyster_card.touch_in
+      oyster_card.touch_in(london_bridge)
       expect(oyster_card).to be_in_journey
     end
 
     it "raise exception when trying to touch_in twice" do
       oyster_card.top_up(10)
-      oyster_card.touch_in
-      expect { oyster_card.touch_in }.to raise_error("Cannot touch in: already in journey")
+      oyster_card.touch_in(london_bridge)
+      expect { oyster_card.touch_in(london_bridge) }.to raise_error("Cannot touch in: already in journey")
     end
 
     it "prevents the user from travelling with insufficient funds prevent from touching in unless they have a minimum balance of £1" do
-      expect{oyster_card.touch_in}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
+      expect{oyster_card.touch_in(london_bridge)}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
     end
 
+    it 'will record the station where the user touches in' do
+      oyster_card.top_up(10)
+      oyster_card.touch_in(london_bridge)
+      expect(oyster_card.entry_station).to eq london_bridge
+    end
   end
 
   describe "#touch_out" do
 
     it 'should return in_journey as false after oyster on a journey calls touch_out' do
       oyster_card.top_up(10)
-      oyster_card.touch_in
+      oyster_card.touch_in(london_bridge)
       oyster_card.touch_out
       expect(oyster_card).not_to be_in_journey
     end
@@ -75,10 +80,15 @@ describe OysterCard do
 
     it 'deduct minimum fare from balance when touching out.' do
       oyster_card.top_up(10)
-      oyster_card.touch_in
+      oyster_card.touch_in(london_bridge)
       expect {oyster_card.touch_out}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
     end
 
+    it 'checks that entry_station is set to nil after touching out' do
+      oyster_card.top_up(10)
+      oyster_card.touch_in(london_bridge)
+      expect {oyster_card.touch_out}.to change{oyster_card.entry_station}.to nil
+    end
   end
 
 end
