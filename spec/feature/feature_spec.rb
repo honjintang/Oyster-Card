@@ -1,6 +1,7 @@
 describe "User Stories" do
 
 let(:oyster_card) { OysterCard.new }
+let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
 # In order to use public transport
 # As a customer
 # I want money on my card
@@ -24,7 +25,7 @@ let(:oyster_card) { OysterCard.new }
 
   it 'so users money is safe, limit maximum balance on card to £90' do
     oyster_card.top_up(90)
-    expect {oyster_card.top_up(1)}.to raise_error("Cannot top up: maximum balance (£#{OysterCard::MAX_BALANCE}) exceeded")
+    expect {oyster_card.top_up(1)}.to raise_error("Cannot top up: maximum balance (£#{OysterCard::MAXIMUM_BALANCE}) exceeded")
   end
 
   # In order to pay for my journey
@@ -32,9 +33,10 @@ let(:oyster_card) { OysterCard.new }
   # I need my fare deducted from my card
 
   it "so user can spend money, allow transactions to occur until there is £0 card balance" do
-      oyster_card.top_up(90)
-      oyster_card.deduct(90)
-      expect { oyster_card.deduct(1) }.to raise_error("Cannot deduct money: insufficient funds")
+      oyster_card.top_up(1)
+      oyster_card.touch_in
+      oyster_card.touch_out
+      expect { oyster_card.touch_in }.to raise_error("Cannot touch in: insufficient funds. Please top up")
 
   end
 
@@ -43,7 +45,7 @@ let(:oyster_card) { OysterCard.new }
   # I need to touch in and out.
 
   it 'so the user can pass the barriers, they need to be able to touch in and out' do
-    oyster_card.top_up(5)
+    oyster_card.top_up(10)
     expect(oyster_card).not_to be_in_journey
     oyster_card.touch_in
     expect(oyster_card).to be_in_journey
@@ -58,4 +60,15 @@ let(:oyster_card) { OysterCard.new }
   it "to prevent the user from travelling with insufficient funds prevent from touching in unless they have a minimum balance of £1" do
     expect{oyster_card.touch_in}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
   end
+
+  #   In order to pay for my journey
+  # As a customer
+  # When my journey is complete, I need the correct amount deducted from my card
+
+  it 'deduct minimum fare from balance when touching out.' do
+    oyster_card.top_up(10)
+    oyster_card.touch_in
+    expect {oyster_card.touch_out}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
+  end
+
 end

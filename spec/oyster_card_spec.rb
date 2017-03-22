@@ -28,34 +28,9 @@ describe OysterCard do
     end
 
     it 'expects top up after maximum balance reached to return error' do
-      expect {oyster_card.top_up(95)}.to raise_error("Cannot top up: maximum balance (£#{OysterCard::MAX_BALANCE}) exceeded")
+      expect {oyster_card.top_up(95)}.to raise_error("Cannot top up: maximum balance (£#{OysterCard::MAXIMUM_BALANCE}) exceeded")
     end
   end
-
-  describe "#deduct" do
-
-    it "expects deduct to remove the specificied amount from balance" do
-      oyster_card.top_up(20)
-      oyster_card.deduct(10)
-      expect(oyster_card.balance).to eq(10)
-    end
-
-    it "raises exception when user tries to deduct a greater amount of money than is on the card balance" do
-      expect { oyster_card.deduct(10) }.to raise_error("Cannot deduct money: insufficient funds")
-    end
-
-  end
-
-  # NOW PRIVATE
-  # describe "#balance_insufficient?" do
-  #
-  #   it "returns true when amount to be deducted is more than current balance" do
-  #     allow(oyster_card).to receive(:balance) {20}
-  #     # oyster_card.top_up(20)
-  #     expect(oyster_card.balance_insufficient?(25)).to eq(true)
-  #   end
-  #
-  # end
 
   describe "#in_journey?" do
 
@@ -98,6 +73,11 @@ describe OysterCard do
       expect { oyster_card.touch_out }.to raise_error("Cannot touch out: not in journey")
     end
 
+    it 'deduct minimum fare from balance when touching out.' do
+      oyster_card.top_up(10)
+      oyster_card.touch_in
+      expect {oyster_card.touch_out}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
+    end
 
   end
 

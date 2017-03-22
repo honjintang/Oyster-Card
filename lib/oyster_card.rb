@@ -1,7 +1,7 @@
 class OysterCard
 
-  MAX_BALANCE = 90
-  MIN_BALANCE = 1
+  MAXIMUM_BALANCE = 90
+  MINIMUM_BALANCE = 1
 
 
 attr_reader :balance
@@ -12,15 +12,11 @@ attr_reader :balance
   end
 
   def top_up(amount_of_money)
-    fail "Cannot top up: maximum balance (£#{MAX_BALANCE}) exceeded" if balance_exceeded?(amount_of_money)
+    fail "Cannot top up: maximum balance (£#{MAXIMUM_BALANCE}) exceeded" if balance_exceeded?(amount_of_money)
     self.balance += amount_of_money
   end
 
 
-  def deduct(amount_of_money)
-    fail "Cannot deduct money: insufficient funds" if balance_insufficient?
-    self.balance -= amount_of_money
-  end
 
   def in_journey?
     in_journey
@@ -35,20 +31,25 @@ attr_reader :balance
   def touch_out
     fail "Cannot touch out: not in journey" if !in_journey?
     self.in_journey = false
+    deduct(MINIMUM_BALANCE)
   end
 
   private
+
+  def deduct(amount_of_money)
+    self.balance -= amount_of_money
+  end
 
   attr_accessor :in_journey
 
   attr_writer :balance
 
   def balance_exceeded?(amount_of_money)
-    (balance + amount_of_money) > MAX_BALANCE
+    (balance + amount_of_money) > MAXIMUM_BALANCE
   end
 
   def balance_insufficient?
-    balance < MIN_BALANCE
+    balance < MINIMUM_BALANCE
   end
 
 end
