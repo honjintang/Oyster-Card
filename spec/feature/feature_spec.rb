@@ -3,6 +3,7 @@ describe "User Stories" do
 let(:oyster_card) { OysterCard.new }
 let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
 let(:london_bridge) {double:station}
+let(:bermondsey) {double:station}
 # In order to use public transport
 # As a customer
 # I want money on my card
@@ -36,7 +37,7 @@ let(:london_bridge) {double:station}
   it "so user can spend money, allow transactions to occur until there is £0 card balance" do
       oyster_card.top_up(1)
       oyster_card.touch_in(london_bridge)
-      oyster_card.touch_out
+      oyster_card.touch_out(bermondsey)
       expect { oyster_card.touch_in(london_bridge) }.to raise_error("Cannot touch in: insufficient funds. Please top up")
 
   end
@@ -50,7 +51,7 @@ let(:london_bridge) {double:station}
     expect(oyster_card).not_to be_in_journey
     oyster_card.touch_in(london_bridge)
     expect(oyster_card).to be_in_journey
-    oyster_card.touch_out
+    oyster_card.touch_out(bermondsey)
     expect(oyster_card).not_to be_in_journey
   end
 
@@ -69,7 +70,7 @@ let(:london_bridge) {double:station}
   it 'deduct minimum fare from balance when touching out.' do
     oyster_card.top_up(10)
     oyster_card.touch_in(london_bridge)
-    expect {oyster_card.touch_out}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
+    expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
   end
 
   #In order to pay for my journey
@@ -80,6 +81,16 @@ let(:london_bridge) {double:station}
     oyster_card.top_up(10)
     oyster_card.touch_in(london_bridge)
     expect(oyster_card.entry_station).to eq london_bridge
+  end
 
+  #   In order to know where I have been
+  # As a customer
+  # I want to see to all my previous trips
+
+  it 'will record entry station and exit station, and return journey history.' do
+    oyster_card.top_up(10)
+    oyster_card.touch_in(london_bridge)
+    oyster_card.touch_out(bermondsey)
+    expect(oyster_card.journey_history).to include ({london_bridge => bermondsey})
   end
 end

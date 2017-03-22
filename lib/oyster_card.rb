@@ -4,11 +4,12 @@ class OysterCard
   MINIMUM_BALANCE = 1
 
 
-attr_reader :balance, :entry_station
+attr_reader :balance, :entry_station, :journey_history
 
   def initialize
     @balance = 0
     @entry_station = nil
+    @journey_history = []
   end
 
   def top_up(amount_of_money)
@@ -27,9 +28,10 @@ attr_reader :balance, :entry_station
     self.entry_station = station
   end
 
-  def touch_out
+  def touch_out(station)
     fail "Cannot touch out: not in journey" if !in_journey?
     deduct(MINIMUM_BALANCE)
+    journey_history.push({entry_station => station})
     self.entry_station = nil
   end
 

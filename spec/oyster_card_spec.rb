@@ -3,6 +3,7 @@ require 'oyster_card'
 describe OysterCard do
   subject(:oyster_card) {described_class.new}
   let(:london_bridge) {double:station}
+  let(:bermondsey) {double:station}
 
   describe '#balance' do
   it 'responds to balance enquiry' do
@@ -70,25 +71,36 @@ end
     it 'should return in_journey as false after oyster on a journey calls touch_out' do
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
-      oyster_card.touch_out
+      oyster_card.touch_out(bermondsey)
       expect(oyster_card).not_to be_in_journey
     end
 
-    it "raise exception when trying to touch_out twice" do
-      expect { oyster_card.touch_out }.to raise_error("Cannot touch out: not in journey")
+    it "rasie exception when user tries to touch out without touching in" do
+      expect { oyster_card.touch_out(bermondsey) }.to raise_error("Cannot touch out: not in journey")
     end
 
     it 'deduct minimum fare from balance when touching out.' do
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
-      expect {oyster_card.touch_out}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
+      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
     end
 
     it 'checks that entry_station is set to nil after touching out' do
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
-      expect {oyster_card.touch_out}.to change{oyster_card.entry_station}.to nil
+      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.entry_station}.to nil
     end
+  end
+
+  describe"#journey_history" do
+    it 'will record entry station and exit station, and return journey history.' do
+      oyster_card.top_up(10)
+      oyster_card.touch_in(london_bridge)
+      oyster_card.touch_out(bermondsey)
+      expect(oyster_card.journey_history).to include ({london_bridge => bermondsey})
+    end
+
+
   end
 
 end
