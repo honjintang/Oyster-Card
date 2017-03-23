@@ -60,7 +60,7 @@ end
 
     it 'deduct minimum fare from balance when touching out.' do
       oyster_card.touch_in(london_bridge)
-      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_FARE
+      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by Journey::MINIMUM_FARE
     end
   end
 
@@ -76,19 +76,19 @@ end
     it 'will deduct minimum fare for complete journeys' do
       oyster_card.touch_in(london_bridge)
       oyster_card.touch_out(bermondsey)
-      expect(oyster_card.balance).to eq (OysterCard::INITIAL_BALANCE - OysterCard::MINIMUM_FARE)
+      expect(oyster_card.balance).to eq (OysterCard::INITIAL_BALANCE + Journey::MINIMUM_FARE)
     end
 
     it "will deduct penalty fare if user touches in but doesn't touch out" do
       oyster_card.top_up(10)
       oyster_card.touch_in(london_bridge)
       oyster_card.touch_in(london_bridge)
-      expect(oyster_card.balance).to eq ((10 + OysterCard::INITIAL_BALANCE) - OysterCard::PENALTY_FARE)
+      expect(oyster_card.balance).to eq ((10 + OysterCard::INITIAL_BALANCE) + Journey::PENALTY_FARE)
     end
 
     it "will deduct penalty fare if user touches out without touching in" do
       oyster_card.touch_out(bermondsey)
-      expect(oyster_card.balance).to eq (OysterCard::INITIAL_BALANCE - OysterCard::PENALTY_FARE)
+      expect(oyster_card.balance).to eq (OysterCard::INITIAL_BALANCE - Journey::PENALTY_FARE)
     end
   end
 

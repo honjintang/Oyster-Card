@@ -3,10 +3,14 @@
 
 class Journey
 
+  MINIMUM_FARE = -1
+  PENALTY_FARE = -6
+
+  attr_reader :fare
+
   def initialize
     @trip = {:start => nil, :finish => nil}
-    # @start = nil
-    # @finish = nil
+    @fare = PENALTY_FARE
   end
 
   attr_reader :start, :finish, :trip
@@ -17,18 +21,14 @@ class Journey
 
   def add_finish(station)
     self.trip[:finish] = station
+    self.fare = MINIMUM_FARE
   end
 
   def in_journey?
     !trip[:finish]
   end
-  #
-  # def end_journey
-  #   self.start = nil
-  #   self.finish = nil
-  # end
 
   private
 
-  attr_writer :start, :finish, :trip
+  attr_writer :start, :finish, :trip, :fare
 end

@@ -7,10 +7,6 @@ class OysterCard
 
   MAXIMUM_BALANCE = 90
   INITIAL_BALANCE = 5
-  MINIMUM_FARE = 1
-  PENALTY_FARE = 6
-
-
 
 attr_reader :balance, :entry_station, :journey_history, :single_journey
 
@@ -32,20 +28,21 @@ attr_reader :balance, :entry_station, :journey_history, :single_journey
     elsif journey_complete?
       self.single_journey = Journey.new
     else
-      deduct(PENALTY_FARE)
+      calculate_fare
       self.single_journey = Journey.new
     end
     fail "Cannot touch in: insufficient funds. Please top up" if balance_insufficient?
+    #calculate_fare
     single_journey.add_start(station)
   end
 
   def touch_out(station)
     if single_journey.nil? || journey_complete?
-      deduct(PENALTY_FARE)
+      calculate_fare
     else
-    single_journey.add_finish(station)
-    deduct(MINIMUM_FARE)
-    finish_trip
+      single_journey.add_finish(station)
+      calculate_fare
+      finish_trip
     end
   end
 
@@ -53,23 +50,15 @@ attr_reader :balance, :entry_station, :journey_history, :single_journey
     journey_history << single_journey
   end
 
-  # def fare
-  #   if journey_complete?
-  #       deduct(MINIMUM_BALANCE)
-  #   else
-  #   deduct(PENALTY_FARE)
-  # end
-  # end
+  def calculate_fare
+    self.balance += single_journey.fare
+  end
 
   def journey_complete?
     !single_journey.in_journey?
   end
 
   private
-
-  def deduct(amount_of_money)
-    self.balance -= amount_of_money
-  end
 
   attr_writer :balance, :entry_station, :single_journey
 
@@ -78,7 +67,7 @@ attr_reader :balance, :entry_station, :journey_history, :single_journey
   end
 
   def balance_insufficient?
-    balance < MINIMUM_FARE
+    balance < 1
   end
 
 end

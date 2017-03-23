@@ -50,7 +50,7 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   it 'so the user can be chardged the correct amount for their journey, they should be able to touch in and out and have minimum fare deducted.' do
     oyster_card.touch_in(london_bridge)
     oyster_card.touch_out(bermondsey)
-    expect(oyster_card.balance).to eq(OysterCard::INITIAL_BALANCE - OysterCard::MINIMUM_FARE)
+    expect(oyster_card.balance).to eq(OysterCard::INITIAL_BALANCE + Journey::MINIMUM_FARE)
 
   end
 
@@ -69,7 +69,7 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
 
   it 'deduct minimum fare from balance when touching out.' do
     oyster_card.touch_in(london_bridge)
-    expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_FARE
+    expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by Journey::MINIMUM_FARE
   end
 
   #In order to pay for my journey
