@@ -18,7 +18,7 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
 
   it "so user can add money to their card, add top up functionality" do
     oyster_card.top_up(20)
-    expect(oyster_card.balance).to eq(20)
+    expect(oyster_card.balance).to eq(25)
   end
 
   # In order to protect my money from theft or loss
@@ -26,7 +26,7 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # I want a maximum limit (of £90) on my card
 
   it 'so users money is safe, limit maximum balance on card to £90' do
-    oyster_card.top_up(90)
+    oyster_card.top_up(OysterCard::MAXIMUM_BALANCE - OysterCard::INITIAL_BALANCE)
     expect {oyster_card.top_up(1)}.to raise_error("Cannot top up: maximum balance (£#{OysterCard::MAXIMUM_BALANCE}) exceeded")
   end
 
@@ -35,9 +35,10 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # I need my fare deducted from my card
 
   it "so user can spend money, allow transactions to occur until there is £0 card balance" do
-      oyster_card.top_up(1)
-      oyster_card.touch_in(london_bridge)
-      oyster_card.touch_out(bermondsey)
+      5.times do
+        oyster_card.touch_in(london_bridge)
+        oyster_card.touch_out(bermondsey)
+      end
       expect { oyster_card.touch_in(london_bridge) }.to raise_error("Cannot touch in: insufficient funds. Please top up")
 
   end
@@ -46,13 +47,11 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # As a customer
   # I need to touch in and out.
 
-  it 'so the user can pass the barriers, they need to be able to touch in and out' do
-    oyster_card.top_up(10)
-    expect(oyster_card.trip).not_to be_in_journey
+  it 'so the user can be chardged the correct amount for their journey, they should be able to touch in and out and have minimum fare deducted.' do
     oyster_card.touch_in(london_bridge)
-    expect(oyster_card.trip).to be_in_journey
     oyster_card.touch_out(bermondsey)
-    expect(oyster_card.trip).not_to be_in_journey
+    expect(oyster_card.balance).to eq(OysterCard::INITIAL_BALANCE - OysterCard::MINIMUM_FARE)
+
   end
 
   #In order to pay for my journey
@@ -60,6 +59,7 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # I need to have the minimum amount (£1) for a single journey.
 
   it "to prevent the user from travelling with insufficient funds prevent from touching in unless they have a minimum balance of £1" do
+    allow(oyster_card).to receive(:balance){0}
     expect{oyster_card.touch_in(london_bridge)}.to raise_error 'Cannot touch in: insufficient funds. Please top up'
   end
 
@@ -68,9 +68,8 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # When my journey is complete, I need the correct amount deducted from my card
 
   it 'deduct minimum fare from balance when touching out.' do
-    oyster_card.top_up(10)
     oyster_card.touch_in(london_bridge)
-    expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_BALANCE
+    expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -OysterCard::MINIMUM_FARE
   end
 
   #In order to pay for my journey
@@ -78,9 +77,8 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # I need to know where I've travelled from
 
   it 'will record the station where the user touches in' do
-    oyster_card.top_up(10)
     oyster_card.touch_in(london_bridge)
-    expect(oyster_card.trip.start).to eq london_bridge
+    expect(oyster_card.single_journey.trip[:start]).to eq london_bridge
   end
 
   #   In order to know where I have been
@@ -88,10 +86,9 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # I want to see to all my previous trips
 
   it 'will record entry station and exit station, and return journey history.' do
-    oyster_card.top_up(10)
     oyster_card.touch_in(london_bridge)
     oyster_card.touch_out(bermondsey)
-    expect(oyster_card.trip.journey_history).to include ({london_bridge => bermondsey})
+    expect(oyster_card.journey_history[0].trip).to include ({:start => london_bridge, :finish => bermondsey})
   end
 end
   # In order to know how far I have travelled

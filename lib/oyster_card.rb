@@ -6,17 +6,19 @@ require './lib/station.rb'
 class OysterCard
 
   MAXIMUM_BALANCE = 90
-  MINIMUM_BALANCE = 1
+  INITIAL_BALANCE = 5
+  MINIMUM_FARE = 1
+  PENALTY_FARE = 6
 
 
 
-attr_reader :balance, :entry_station, :journey_history, :trip
+attr_reader :balance, :entry_station, :journey_history, :single_journey
 
   def initialize
-    @balance = 0
+    @balance = INITIAL_BALANCE
     # @entry_station = nil
     @journey_history = []
-    @trip = Journey.new
+
   end
 
   def top_up(amount_of_money)
@@ -24,28 +26,44 @@ attr_reader :balance, :entry_station, :journey_history, :trip
     self.balance += amount_of_money
   end
 
-
-  # def in_journey?
-  #   !!entry_station
-  # end
-
   def touch_in(station)
-    fail "Cannot touch in: already in journey" if trip.in_journey?
+    if single_journey.nil?
+      self.single_journey = Journey.new
+    elsif journey_complete?
+      self.single_journey = Journey.new
+    else
+      deduct(PENALTY_FARE)
+      self.single_journey = Journey.new
+    end
     fail "Cannot touch in: insufficient funds. Please top up" if balance_insufficient?
-    trip.add_start(station)
+    single_journey.add_start(station)
   end
 
   def touch_out(station)
-    fail "Cannot touch out: not in journey" if !trip.in_journey?
-    deduct(MINIMUM_BALANCE)
-    trip.add_finish(station)
-    trip.store_history
-    trip.end_journey
+    if single_journey.nil? || journey_complete?
+      deduct(PENALTY_FARE)
+    else
+    single_journey.add_finish(station)
+    deduct(MINIMUM_FARE)
+    finish_trip
+    end
   end
 
+  def finish_trip
+    journey_history << single_journey
+  end
 
-  # journey_history.push(trip)
+  # def fare
+  #   if journey_complete?
+  #       deduct(MINIMUM_BALANCE)
+  #   else
+  #   deduct(PENALTY_FARE)
+  # end
+  # end
 
+  def journey_complete?
+    !single_journey.in_journey?
+  end
 
   private
 
@@ -53,14 +71,14 @@ attr_reader :balance, :entry_station, :journey_history, :trip
     self.balance -= amount_of_money
   end
 
-  attr_writer :balance, :entry_station, :trip
+  attr_writer :balance, :entry_station, :single_journey
 
   def balance_exceeded?(amount_of_money)
     (balance + amount_of_money) > MAXIMUM_BALANCE
   end
 
   def balance_insufficient?
-    balance < MINIMUM_BALANCE
+    balance < MINIMUM_FARE
   end
 
 end

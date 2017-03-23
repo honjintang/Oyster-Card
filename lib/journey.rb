@@ -4,35 +4,31 @@
 class Journey
 
   def initialize
-    @start = nil
-    @finish = nil
-    @journey_history = []
+    @trip = {:start => nil, :finish => nil}
+    # @start = nil
+    # @finish = nil
   end
 
-  attr_reader :start, :finish, :journey_history
+  attr_reader :start, :finish, :trip
 
   def add_start(station)
-    self.start = station
+    self.trip[:start] = station
   end
 
   def add_finish(station)
-    self.finish = station
+    self.trip[:finish] = station
   end
 
   def in_journey?
-    !!start
+    !trip[:finish]
   end
-
-  def end_journey
-    self.start = nil
-    self.finish = nil
-  end
-
-  def store_history
-    self.journey_history << {start => finish}
-  end
+  #
+  # def end_journey
+  #   self.start = nil
+  #   self.finish = nil
+  # end
 
   private
 
-  attr_writer :start, :finish
+  attr_writer :start, :finish, :trip
 end
