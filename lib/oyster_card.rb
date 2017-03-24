@@ -48,10 +48,10 @@ attr_reader :balance, :entry_station, :journey_history, :single_journey, :journe
     if journey_log.current_journey.nil?
       #single_journey.nil?
       self.balance += Journey::PENALTY_FARE
-    # elsif journey_log.current_journey.in_journey?
-    #   #journey_complete?
-    #   journey_log.current_journey.reset_fare
-    #   calculate_fare
+    elsif ! journey_log.current_journey.in_journey?
+      #journey_complete?
+      journey_log.current_journey.reset_fare
+      calculate_fare
     else
       journey_log.finish(station)
       #single_journey.add_finish(station)
