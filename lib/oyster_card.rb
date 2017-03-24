@@ -2,18 +2,20 @@
 
 require './lib/journey.rb'
 require './lib/station.rb'
+require './lib/journey_log.rb'
 
 class OysterCard
 
   MAXIMUM_BALANCE = 90
   INITIAL_BALANCE = 5
 
-attr_reader :balance, :entry_station, :journey_history, :single_journey
+attr_reader :balance, :entry_station, :journey_history, :single_journey, :journey_log
 
   def initialize
     @balance = INITIAL_BALANCE
+    @journey_log = JourneyLog.new(Journey)
     # @entry_station = nil
-    @journey_history = []
+    #@journey_history = []
 
   end
 
@@ -23,35 +25,47 @@ attr_reader :balance, :entry_station, :journey_history, :single_journey
   end
 
   def touch_in(station)
-    if single_journey.nil?
-      self.single_journey = Journey.new
-    elsif journey_complete?
-      self.single_journey = Journey.new
+    if journey_log.current_journey.nil?
+      #single_journey.nil?
+      journey_log.start
+      #self.single_journey = Journey.new
+    elsif !journey_log.current_journey.in_journey?
+      #journey_complete?
+      journey_log.start
+      #self.single_journey = Journey.new
     else
       calculate_fare
-      self.single_journey = Journey.new
+      journey_log.start
+      #self.single_journey = Journey.new
     end
     fail "Cannot touch in: insufficient funds. Please top up" if balance_insufficient?
     #calculate_fare
-    single_journey.add_start(station)
+    journey_log.add_start(station)
+    #single_journey.add_start(station)
   end
 
   def touch_out(station)
-    if single_journey.nil? || journey_complete?
-      calculate_fare
+    if journey_log.current_journey.nil?
+      #single_journey.nil?
+      self.balance += Journey::PENALTY_FARE
+    # elsif journey_log.current_journey.in_journey?
+    #   #journey_complete?
+    #   journey_log.current_journey.reset_fare
+    #   calculate_fare
     else
-      single_journey.add_finish(station)
+      journey_log.finish(station)
+      #single_journey.add_finish(station)
       calculate_fare
-      finish_trip
+      #finish_trip
     end
   end
 
-  def finish_trip
-    journey_history << single_journey
-  end
+  #def finish_trip
+    #journey_history << single_journey
+  #end
 
   def calculate_fare
-    self.balance += single_journey.fare
+    self.balance += journey_log.current_journey.fare
   end
 
   def journey_complete?

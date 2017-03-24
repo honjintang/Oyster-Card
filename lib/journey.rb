@@ -24,6 +24,10 @@ class Journey
     self.fare = MINIMUM_FARE
   end
 
+  def reset_fare
+    self.fare = PENALTY_FARE
+  end
+
   def in_journey?
     !trip[:finish]
   end

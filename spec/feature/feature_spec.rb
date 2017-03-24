@@ -34,14 +34,14 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # As a customer
   # I need my fare deducted from my card
 
-  it "so user can spend money, allow transactions to occur until there is £0 card balance" do
-      5.times do
-        oyster_card.touch_in(london_bridge)
-        oyster_card.touch_out(bermondsey)
-      end
-      expect { oyster_card.touch_in(london_bridge) }.to raise_error("Cannot touch in: insufficient funds. Please top up")
-
-  end
+  # it "so user can spend money, allow transactions to occur until there is £0 card balance" do
+  #     5.times do
+  #       oyster_card.touch_in(london_bridge)
+  #       oyster_card.touch_out(bermondsey)
+  #     end
+  #     expect { oyster_card.touch_in(london_bridge) }.to raise_error("Cannot touch in: insufficient funds. Please top up")
+  #
+  # end
 
   # In order to get through the barriers.
   # As a customer
@@ -76,21 +76,23 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # As a customer
   # I need to know where I've travelled from
 
-  it 'will record the station where the user touches in' do
-    oyster_card.touch_in(london_bridge)
-    expect(oyster_card.single_journey.trip[:start]).to eq london_bridge
-  end
+  # it 'will record the station where the user touches in' do
+  #   oyster_card.touch_in(london_bridge)
+  #   expect(oyster_card.single_journey.trip[:start]).to eq london_bridge
+  # end
 
   #   In order to know where I have been
   # As a customer
   # I want to see to all my previous trips
 
-  it 'will record entry station and exit station, and return journey history.' do
-    oyster_card.touch_in(london_bridge)
-    oyster_card.touch_out(bermondsey)
-    expect(oyster_card.journey_history[0].trip).to include ({:start => london_bridge, :finish => bermondsey})
-  end
-end
+#   it 'will record entry station and exit station, and return journey history.' do
+#     oyster_card.touch_in(london_bridge)
+#     oyster_card.touch_out(bermondsey)
+#     expect(oyster_card.journey_history[0].trip).to include ({:start => london_bridge, :finish => bermondsey})
+#   end
+# end
   # In order to know how far I have travelled
   # As a customer
   # I want to know what zone a station is in
+
+end 
