@@ -3,7 +3,7 @@ describe "User Stories" do
 let(:oyster_card) { OysterCard.new }
 let(:oyster_card_topped_up) {(OysterCard.new).top_up(10)}
 let(:london_bridge) { Station.new("London Bridge", 2)}
-let(:bermondsey) { Station.new("Bermondsey", 2) }
+let(:bermondsey) { Station.new("Bermondsey", 1) }
 # In order to use public transport
 # As a customer
 # I want money on my card
@@ -50,7 +50,7 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   it 'so the user can be chardged the correct amount for their journey, they should be able to touch in and out and have minimum fare deducted.' do
     oyster_card.touch_in(london_bridge)
     oyster_card.touch_out(bermondsey)
-    expect(oyster_card.balance).to eq(OysterCard::INITIAL_BALANCE + Journey::MINIMUM_FARE)
+    expect(oyster_card.balance).to eq 3
 
   end
 
@@ -69,7 +69,17 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
 
   it 'deduct minimum fare from balance when touching out.' do
     oyster_card.touch_in(london_bridge)
-    expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by Journey::MINIMUM_FARE
+    expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -2
+  end
+
+#   In order to be charged the correct amount
+    # As a customer
+    # I need to have the correct fare calculated
+
+  it 'calculates the correct fare' do
+    oyster_card.touch_in(london_bridge)
+    oyster_card.touch_out(bermondsey)
+    expect(oyster_card.balance).to eq 3
   end
 
   #In order to pay for my journey
@@ -95,4 +105,4 @@ let(:bermondsey) { Station.new("Bermondsey", 2) }
   # As a customer
   # I want to know what zone a station is in
 
-end 
+end

@@ -14,8 +14,6 @@ attr_reader :balance, :entry_station, :journey_history, :single_journey, :journe
   def initialize
     @balance = INITIAL_BALANCE
     @journey_log = JourneyLog.new(Journey)
-    # @entry_station = nil
-    #@journey_history = []
 
   end
 
@@ -25,51 +23,40 @@ attr_reader :balance, :entry_station, :journey_history, :single_journey, :journe
   end
 
   def touch_in(station)
-    if journey_log.current_journey.nil?
-      #single_journey.nil?
+    if no_journey?
       journey_log.start
-      #self.single_journey = Journey.new
-    elsif !journey_log.current_journey.in_journey?
-      #journey_complete?
+    elsif !in_journey?
       journey_log.start
-      #self.single_journey = Journey.new
     else
       calculate_fare
       journey_log.start
-      #self.single_journey = Journey.new
     end
     fail "Cannot touch in: insufficient funds. Please top up" if balance_insufficient?
-    #calculate_fare
     journey_log.add_start(station)
-    #single_journey.add_start(station)
   end
 
   def touch_out(station)
-    if journey_log.current_journey.nil?
-      #single_journey.nil?
+    if no_journey?
       self.balance += Journey::PENALTY_FARE
-    elsif ! journey_log.current_journey.in_journey?
-      #journey_complete?
+    elsif ! in_journey?
       journey_log.current_journey.reset_fare
       calculate_fare
     else
       journey_log.finish(station)
-      #single_journey.add_finish(station)
       calculate_fare
-      #finish_trip
     end
   end
-
-  #def finish_trip
-    #journey_history << single_journey
-  #end
 
   def calculate_fare
     self.balance += journey_log.current_journey.fare
   end
 
-  def journey_complete?
-    !single_journey.in_journey?
+  def in_journey?
+    journey_log.current_journey.in_journey?
+  end
+
+  def no_journey?
+    journey_log.current_journey.nil?
   end
 
   private

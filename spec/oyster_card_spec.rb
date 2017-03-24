@@ -2,8 +2,8 @@ require 'oyster_card'
 
 describe OysterCard do
   subject(:oyster_card) {described_class.new}
-  let(:london_bridge) {double:station}
-  let(:bermondsey) {double:station}
+  let(:london_bridge) {double:station, zone: 3}
+  let(:bermondsey) {double:station, zone: 2}
 
   describe '#balance' do
   it 'responds to balance enquiry' do
@@ -36,7 +36,7 @@ end
   describe "#touch_in" do
 
     it "prevents the user from travelling with insufficient funds prevent from touching in unless they have a minimum balance of £1" do
-      5.times do
+      3.times do
         oyster_card.touch_in(london_bridge)
         oyster_card.touch_out(bermondsey)
       end
@@ -60,7 +60,7 @@ end
 
     it 'deduct minimum fare from balance when touching out.' do
       oyster_card.touch_in(london_bridge)
-      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by Journey::MINIMUM_FARE
+      expect {oyster_card.touch_out(bermondsey)}.to change{oyster_card.balance}.by -2
     end
   end
 
@@ -73,11 +73,11 @@ end
   end
 
   describe"#fare" do
-    it 'will deduct minimum fare for complete journeys' do
-      oyster_card.touch_in(london_bridge)
-      oyster_card.touch_out(bermondsey)
-      expect(oyster_card.balance).to eq (OysterCard::INITIAL_BALANCE + Journey::MINIMUM_FARE)
-    end
+    # it 'will deduct minimum fare for complete journeys' do
+    #   oyster_card.touch_in(london_bridge)
+    #   oyster_card.touch_out(bermondsey)
+    #   expect(oyster_card.balance).to eq (OysterCard::INITIAL_BALANCE + Journey::MINIMUM_FARE)
+    # end
 
     it "will deduct penalty fare if user touches in but doesn't touch out" do
       oyster_card.top_up(10)

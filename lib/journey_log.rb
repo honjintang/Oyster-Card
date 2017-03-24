@@ -1,6 +1,6 @@
 class JourneyLog
 
-  attr_reader :journey_class, :journeys, :current_journey
+  attr_reader :journey_class, :current_journey, :journeys
 
   def initialize(journey_class)
     @journey_class = journey_class

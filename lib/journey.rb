@@ -6,7 +6,7 @@ class Journey
   MINIMUM_FARE = -1
   PENALTY_FARE = -6
 
-  attr_reader :fare
+  attr_reader :fare, :correct_fare
 
   def initialize
     @trip = {:start => nil, :finish => nil}
@@ -21,11 +21,15 @@ class Journey
 
   def add_finish(station)
     self.trip[:finish] = station
-    self.fare = MINIMUM_FARE
+    self.fare = correct_fare
   end
 
   def reset_fare
     self.fare = PENALTY_FARE
+  end
+
+  def correct_fare
+    MINIMUM_FARE - (self.trip[:start].zone - self.trip[:finish].zone).abs
   end
 
   def in_journey?
